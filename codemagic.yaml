@@ -1,97 +1,21 @@
 workflows:
   android-build:
-    name: Build APK via Codemagic
+    name: Build APK
     instance_type: mac_mini_m1
     environment:
       flutter: stable
     scripts:
-      - name: 1. Generate Struktur Project
+      - name: S1 Generate Project
         script: flutter create --org com.kommunitas --project-name app my_app
-
-      - name: 2. Masukkan Kode & Download Logo
-        script: |
-          cp main.dart my_app/lib/main.dart
-          cd my_app
-          wget -O logo.png "https://kommunitas.web.id/logo.png"
-
-      - name: 3. Install Package Webview, Icon, dan Splash
-        script: |
-          cd my_app
-          flutter pub add webview_flutter
-          flutter pub add --dev flutter_launcher_icons
-          flutter pub add --dev flutter_native_splash
-
-      - name: 4. Eksekusi Pemasangan Icon & Splash Screen
-        script: |
-          cd my_app
-          echo "flutter_icons:" >> pubspec.yaml
-          echo "  android: true" >> pubspec.yaml
-          echo "  ios: false" >> pubspec.yaml
-          echo "  image_path: \"logo.png\"" >> pubspec.yaml
-          echo "" >> pubspec.yaml
-          echo "flutter_native_splash:" >> pubspec.yaml
-          echo "  color: \"#121212\"" >> pubspec.yaml
-          echo "  image: \"logo.png\"" >> pubspec.yaml
-          echo "  android_12:" >> pubspec.yaml
-          echo "    image: \"logo.png\"" >> pubspec.yaml
-          echo "    color: \"#121212\"" >> pubspec.yaml
-          
-          dart run flutter_launcher_icons
-          dart run flutter_native_splash:create
-
-      - name: 5. Ubah Nama Aplikasi & Beri Izin Internet
-        script: |
-          cd my_app
-          perl -pi -e 's/android:label="app"/android:label="Kommunitas"/g' android/app/src/main/AndroidManifest.xml
-          perl -pi -e 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/g' android/app/src/main/AndroidManifest.xml
-
-      - name: 6. Build (Compile) jadi APK
-        script: |
-          cd my_app
-          flutter build apk --release
-          
-    artifacts:
-      - my_app/build/app/outputs/flutter-apk/app-release.apk
-            android_12:
-              image: "logo.png"
-              color: "#121212"
-          EOF
-          
-          dart run flutter_launcher_icons
-          dart run flutter_native_splash:create
-
-      - name: 5. Ubah Nama Aplikasi & Beri Izin Internet
-        script: |
-          cd my_app
-          # Menggunakan perl agar berjalan lancar di mesin Mac
-          perl -pi -e 's/android:label="app"/android:label="Kommunitas"/g' android/app/src/main/AndroidManifest.xml
-          perl -pi -e 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/g' android/app/src/main/AndroidManifest.xml
-
-      - name: 6. Build (Compile) jadi APK
-        script: |
-          cd my_app
-          flutter build apk --release
-          
-    artifacts:
-      - my_app/build/app/outputs/flutter-apk/app-release.apk
-            android_12:
-              image: "logo.png"
-              color: "#121212"
-          EOF
-          
-          dart run flutter_launcher_icons
-          dart run flutter_native_splash:create
-
-      - name: 5. Ubah Nama Aplikasi & Beri Izin Internet
-        script: |
-          cd my_app
-          sed -i 's/android:label="app"/android:label="Kommunitas"/g' android/app/src/main/AndroidManifest.xml
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />' android/app/src/main/AndroidManifest.xml
-
-      - name: 6. Build (Compile) jadi APK
-        script: |
-          cd my_app
-          flutter build apk --release
-          
+      - name: S2 Copy Code and Logo
+        script: cp main.dart my_app/lib/main.dart && cd my_app && wget -O logo.png "https://kommunitas.web.id/logo.png"
+      - name: S3 Install Packages
+        script: cd my_app && flutter pub add webview_flutter flutter_launcher_icons flutter_native_splash
+      - name: S4 Setup Icons and Splash
+        script: cd my_app && printf "\nflutter_icons:\n  android: true\n  ios: false\n  image_path: \"logo.png\"\n\nflutter_native_splash:\n  color: \"#121212\"\n  image: \"logo.png\"\n  android_12:\n    image: \"logo.png\"\n    color: \"#121212\"\n" >> pubspec.yaml && dart run flutter_launcher_icons && dart run flutter_native_splash:create
+      - name: S5 App Name and Permissions
+        script: cd my_app && perl -pi -e 's/android:label="app"/android:label="Kommunitas"/g' android/app/src/main/AndroidManifest.xml && perl -pi -e 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/g' android/app/src/main/AndroidManifest.xml
+      - name: S6 Compile APK
+        script: cd my_app && flutter build apk --release
     artifacts:
       - my_app/build/app/outputs/flutter-apk/app-release.apk
