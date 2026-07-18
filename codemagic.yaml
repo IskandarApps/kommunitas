@@ -24,16 +24,34 @@ workflows:
       - name: 4. Eksekusi Pemasangan Icon & Splash Screen
         script: |
           cd my_app
-          cat <<EOF >> pubspec.yaml
+          echo "flutter_icons:" >> pubspec.yaml
+          echo "  android: true" >> pubspec.yaml
+          echo "  ios: false" >> pubspec.yaml
+          echo "  image_path: \"logo.png\"" >> pubspec.yaml
+          echo "" >> pubspec.yaml
+          echo "flutter_native_splash:" >> pubspec.yaml
+          echo "  color: \"#121212\"" >> pubspec.yaml
+          echo "  image: \"logo.png\"" >> pubspec.yaml
+          echo "  android_12:" >> pubspec.yaml
+          echo "    image: \"logo.png\"" >> pubspec.yaml
+          echo "    color: \"#121212\"" >> pubspec.yaml
           
-          flutter_icons:
-            android: true
-            ios: false
-            image_path: "logo.png"
+          dart run flutter_launcher_icons
+          dart run flutter_native_splash:create
 
-          flutter_native_splash:
-            color: "#121212"
-            image: "logo.png"
+      - name: 5. Ubah Nama Aplikasi & Beri Izin Internet
+        script: |
+          cd my_app
+          perl -pi -e 's/android:label="app"/android:label="Kommunitas"/g' android/app/src/main/AndroidManifest.xml
+          perl -pi -e 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/g' android/app/src/main/AndroidManifest.xml
+
+      - name: 6. Build (Compile) jadi APK
+        script: |
+          cd my_app
+          flutter build apk --release
+          
+    artifacts:
+      - my_app/build/app/outputs/flutter-apk/app-release.apk
             android_12:
               image: "logo.png"
               color: "#121212"
