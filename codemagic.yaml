@@ -1,0 +1,30 @@
+workflows:
+  android-build:
+    name: Build APK via Codemagic
+    instance_type: linux_x2
+    environment:
+      flutter: stable
+    scripts:
+      - name: 1. Generate Struktur Project
+        script: flutter create my_app
+
+      - name: 2. Masukkan Kode main.dart Anda
+        script: cp main.dart my_app/lib/main.dart
+
+      - name: 3. Install Package Webview
+        script: |
+          cd my_app
+          flutter pub add webview_flutter
+
+      - name: 4. Beri Izin Internet
+        script: |
+          cd my_app
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />' android/app/src/main/AndroidManifest.xml
+
+      - name: 5. Build (Compile) jadi APK
+        script: |
+          cd my_app
+          flutter build apk --release
+          
+    artifacts:
+      - my_app/build/app/outputs/flutter-apk/app-release.apk
