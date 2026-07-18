@@ -1,12 +1,26 @@
-name: webview_app
-description: Aplikasi WebView
-publish_to: 'none'
-version: 1.0.0+1
-
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-
-dependencies:
-  flutter:
-    sdk: flutter
-  webview_flutter: ^4.7.0
+workflows:
+  android-build:
+    name: Build APK
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+    scripts:
+      - name: Setup dan Compile APK
+        script: |
+          flutter create --org com.kommunitas --project-name app my_app
+          cp main.dart my_app/lib/main.dart
+          cp AndroidManifest.xml my_app/android/app/src/main/AndroidManifest.xml
+          cd my_app
+          wget -O logo.png "https://kommunitas.web.id/logo.png"
+          flutter pub add webview_flutter flutter_launcher_icons flutter_native_splash
+          echo "flutter_icons:" >> pubspec.yaml
+          echo "  android: true" >> pubspec.yaml
+          echo "  image_path: \"logo.png\"" >> pubspec.yaml
+          echo "flutter_native_splash:" >> pubspec.yaml
+          echo "  color: \"#121212\"" >> pubspec.yaml
+          echo "  image: \"logo.png\"" >> pubspec.yaml
+          dart run flutter_launcher_icons
+          dart run flutter_native_splash:create
+          flutter build apk --release
+    artifacts:
+      - my_app/build/app/outputs/flutter-apk/app-release.apk
