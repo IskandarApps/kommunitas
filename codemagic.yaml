@@ -1,7 +1,7 @@
 workflows:
   android-build:
     name: Build APK via Codemagic
-    instance_type: linux_x2
+    instance_type: mac_mini_m1
     environment:
       flutter: stable
     scripts:
@@ -12,7 +12,6 @@ workflows:
         script: |
           cp main.dart my_app/lib/main.dart
           cd my_app
-          # Mengunduh logo dari website Anda
           wget -O logo.png "https://kommunitas.web.id/logo.png"
 
       - name: 3. Install Package Webview, Icon, dan Splash
@@ -25,7 +24,6 @@ workflows:
       - name: 4. Eksekusi Pemasangan Icon & Splash Screen
         script: |
           cd my_app
-          # Menambahkan aturan icon dan splash ke dalam sistem
           cat <<EOF >> pubspec.yaml
           
           flutter_icons:
@@ -34,14 +32,13 @@ workflows:
             image_path: "logo.png"
 
           flutter_native_splash:
-            color: "#121212" # Warna background splash (gelap)
+            color: "#121212"
             image: "logo.png"
             android_12:
               image: "logo.png"
               color: "#121212"
           EOF
           
-          # Menjalankan pembuat icon dan splash
           dart run flutter_launcher_icons
           dart run flutter_native_splash:create
 
